@@ -1,0 +1,130 @@
+#version 330 core
+out vec4 FragColor;
+in vec2 TexCoord;
+
+uniform float alpha; // trasparenza cubo (0.0 - 1.0)
+
+void main()
+{
+    // Colore arancio trasparente
+    FragColor = vec4(1.0, 0.5, 0.2, alpha);
+}#version 330 core
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec2 aUV;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+out vec2 TexCoord;
+
+void main()
+{
+    TexCoord = aUV;
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(0.0, 0.0, 0.0, 1.0); // nero pieno
+}﻿#version 460 core
+
+in vec2  aTexCoord;
+in vec4  aColor;
+in float aDistance;
+
+out vec4 fColor;
+
+uniform bool      uIsWhiteWorld;
+uniform vec3      uFogColor;
+uniform float     uFogFactor;
+uniform float     uFogCurve;
+uniform sampler2D tex;
+
+void main() {
+    if (uIsWhiteWorld)
+        fColor = aColor * vec4(1.0);
+    else {
+        vec4 texColor = texture(tex, aTexCoord);
+        float depth = aDistance / 256.0;
+        float alpha = aColor.a * texColor.a;
+        if (alpha < 0.1) discard;
+        fColor = mix(aColor * texColor, vec4(uFogColor, 1.0), min(1.0, pow(depth * uFogFactor, uFogCurve)));
+        fColor.a = alpha;
+    }
+}﻿#version 460 core
+
+layout (location = 0) in vec3 vPosition;
+layout (location = 1) in vec2 vTexCoord;
+layout (location = 2) in vec4 vLight;
+
+out vec2  aTexCoord;
+out vec4  aColor;
+out float aDistance;
+
+uniform mat4  model;
+uniform mat4  view;
+uniform mat4  projection;
+uniform vec3  viewPos;
+uniform float uGamma;
+uniform float uTime;
+
+void main() {
+    aTexCoord = vTexCoord;
+
+    // testing
+    vec3 skyLightColor = vec3(1);
+    float color = 4.0 * cos(uTime / 30.0) * cos(uTime / 30.0) - 1.5;
+    
+    //if (color > 1.0)
+    //    skyLightColor = vec3(1.0);
+    //else if (color < 0.2)
+    //    skyLightColor = vec3(0.2);
+    //else
+    //    skyLightColor = vec3(color);
+
+    aColor = vec4(pow(vLight.rgb, vec3(uGamma)), 1.0);
+    aColor.rgb = aColor.rgb*skyLightColor * vLight.a;
+
+    vec3 pos3D = (model * vec4(vPosition, 1.0)).xyz - viewPos.xyz;
+    aDistance = length(view * model * vec4(pos3D.x, 0.1 * pos3D.y, pos3D.z, 0.0));
+
+    gl_Position = projection * view * model * vec4(vPosition, 1.0);
+}
+#ifdef GL_ES
+	#define LOWP lowp
+	precision mediump float;
+#else
+	#define LOWP
+#endif
+
+
+// Uniforms
+uniform sampler2D TextureSampler;
+
+// Varyings
+varying vec4 v_color;
+varying vec2 v_texCoords;
+
+void main()
+{
+	gl_FragColor = v_color * texture2D(TextureSampler, v_texCoords);
+}// Attributes
+attribute vec3 a_position;
+attribute vec4 a_color;
+attribute vec2 a_texCoords0;
+
+// Uniforms
+uniform mat4 MatrixTransform;
+
+// Varyings
+varying vec4 v_color;
+varying vec2 v_texCoords;
+
+void main()
+{
+	v_color = a_color;
+	v_texCoords = a_texCoords0;
+	gl_Position = MatrixTransform * vec4(a_position, 1.0);
+}
