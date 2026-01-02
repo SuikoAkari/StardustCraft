@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StardustCraft.World.Blocks;
 
 namespace StardustCraft.World.Entities
 {
@@ -14,6 +15,9 @@ namespace StardustCraft.World.Entities
         public float JumpForce = 6f;
 
         private bool isGrounded=true;
+        public int selectedInventorySlot = 0;
+        public BlockType[] inventory=new BlockType[9] { BlockType.Dirt, BlockType.Grass, BlockType.Stone, BlockType.OakPlanks, BlockType.OakLog, BlockType.Sand, BlockType.Gravel,BlockType.SnowGrass,BlockType.Gravel};
+        
         public PlayerEntity(Vector3 startPosition)
         {
             Position = startPosition;

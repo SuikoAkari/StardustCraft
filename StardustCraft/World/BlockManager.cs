@@ -43,6 +43,7 @@ namespace StardustCraft.World
             RegisterNewBlock(new BlockIronOre());
             RegisterNewBlock(new BlockSand());
             RegisterNewBlock(new BlockOakPlanks());
+            RegisterNewBlock(new BlockOakLog());
             var podzolTextures = new ChunkRenderer.BlockTextureData
             {
                 TopTexturePath = "Blocks/podzol_top.png",

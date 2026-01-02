@@ -14,7 +14,7 @@ public struct Ray
     public Vector3i Position { get; set; }
     public Vector3i Normal { get; set; }
     public Vector3 End { get; set; }
-
+    
     public Ray()
     {
         Block = null;
@@ -51,6 +51,7 @@ public abstract class Entity
     public bool IsOnGround = false;
     public float GravityScale = 1.0f;
     public float Drag = 0.1f;
+    public string uuid = "CLIENT";
     public abstract AABB GetAABB();
     public abstract void Update(float deltaTime);
     public abstract void OnCollision(Vector3 normal, float penetration, CollisionType type);

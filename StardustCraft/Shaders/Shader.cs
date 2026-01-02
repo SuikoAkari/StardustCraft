@@ -12,6 +12,7 @@ public class Shader
 {
     public int Handle;
 
+    
     public Shader(string vertPath, string fragPath)
     {
         int vert = GL.CreateShader(ShaderType.VertexShader);
@@ -41,6 +42,14 @@ public class Shader
     {
         int loc = GL.GetUniformLocation(Handle, name);
         GL.UniformMatrix4(loc, false, ref mat);
+    }
+    public void SetIntArray(string name, int[] values)
+    {
+        int location = GL.GetUniformLocation(Handle, name);
+        if (location == -1)
+            return;
+
+        GL.Uniform1(location, values.Length, values);
     }
     public void SetInt(string name, int value)
     {

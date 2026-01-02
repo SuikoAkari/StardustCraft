@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using StardustCraft.UI.Basic;
 
 namespace StardustCraft.UI
 {
@@ -32,6 +33,11 @@ namespace StardustCraft.UI
             v.Init();
             
             layouts.Add(v);
+            UILayout v2 = new UIMainHud();
+            v2.Compute(Size);
+            v2.Init();
+            layouts.Add(v2);
+
         }
         public void UpdateSize(Vector2i size)
         {
@@ -49,11 +55,13 @@ namespace StardustCraft.UI
             {
                 FontResolutionFactor = 2,
                 KernelWidth = 2,
-                KernelHeight = 2
+                KernelHeight = 2,
+                
             };
 
             _fontSystem = new FontSystem(settings);
-            _fontSystem.AddFont(BundleManager.Instance.GetFileBytes("fonts/BitmapMc.ttf"));
+            _fontSystem.AddFont(BundleManager.Instance.GetFileBytes("fonts/Lato-Regular.ttf"));
+            
             // Quad unitario (0..1)
             float[] vertices =
             {
@@ -90,6 +98,28 @@ namespace StardustCraft.UI
             LoadAndAddLayout("data/ui/ui_game_hud.json");
         }
 
+        public static System.Numerics.Vector2 MeasureString(int fontSize, string text)
+        {
+            var font = UserInterface._fontSystem.GetFont(fontSize);
+            System.Numerics.Vector2 textSize = font.MeasureString(text, new System.Numerics.Vector2(1, 1));
+            return textSize;
+        }
+        public static void RenderText(int fontSize,string text,Vector2 computedPos,FSColor color,FontSystemEffect effect = 0,int effectAmount= 0)
+        {
+            var font = UserInterface._fontSystem.GetFont(fontSize);
+            UserInterface.textRenderer.Begin(new OpenTK.Mathematics.Vector2i((int)UserInterface.Size.X, (int)UserInterface.Size.Y));
+            font.DrawText(
+                UserInterface.textRenderer,
+                text,
+                new System.Numerics.Vector2(computedPos.X, computedPos.Y),
+                color,
+                scale: new System.Numerics.Vector2(1, 1),
+                effect: effect,
+                effectAmount: effectAmount
+
+            );
+            UserInterface.textRenderer.End();
+        }
         public void Render(float deltaTime)
         {
             // RenderQuad(new Vector2(Size.X/2 - 6, Size.Y / 2 - 6), new Vector2(12, 12), Vector4.One, TextureLoader.GetTexture("ui/small_center_cursor.png"));

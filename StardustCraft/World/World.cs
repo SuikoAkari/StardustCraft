@@ -26,11 +26,15 @@ namespace StardustCraft.World
             GenerateInitialChunks(0, 0);
             AddEntity(new PlayerEntity(new Vector3(0, 200, 0)));
         }
-        public void UpdatePlayerPosition(Vector3 playerPosition)
+        public void UpdatePlayerPosition()
         {
-            // Calcola in quale chunk si trova il player
-            int playerChunkX = (int)MathF.Floor(playerPosition.X / Chunk.Size);
-            int playerChunkZ = (int)MathF.Floor(playerPosition.Z / Chunk.Size);
+            PlayerEntity player = GetClientEntity();
+            if (player==null)
+            {
+                return;
+            }
+            int playerChunkX = (int)MathF.Floor(player.FinalPosition.X / Chunk.Size);
+            int playerChunkZ = (int)MathF.Floor(player.FinalPosition.Z / Chunk.Size);
 
             // Se il player si è mosso in un nuovo chunk
             if (playerChunkX != lastPlayerChunk.currentX || playerChunkZ != lastPlayerChunk.currentZ)
@@ -222,7 +226,7 @@ namespace StardustCraft.World
         }
         public void Update(float deltaTime)
         {
-            var player = entities.OfType<PlayerEntity>().FirstOrDefault();
+            var player = GetClientEntity();
             if (player != null)
             {
                 Vector3 input = Vector3.Zero;
@@ -325,12 +329,16 @@ namespace StardustCraft.World
 
         public double LastPhysicsTickTime { get; internal set; }
 
-        public void Render(Shader shader, Vector3 playerPosition)
+        public void Render(Shader shader)
         {
             // Aggiorna posizione player e chunk
             //UpdatePlayerPosition(playerPosition);
-            
-            shader.SetVector3("viewPos", playerPosition);
+            PlayerEntity player = GetClientEntity();
+            if (player==null)
+            {
+                return;
+            }
+            shader.SetVector3("viewPos", player.FinalPosition);
             shader.SetVector3("uFogColor", backgroundColor);
             shader.SetFloat("uFogFactor", 2f); // 0 - fog off
             shader.SetFloat("uFogCurve", 5f);
@@ -342,7 +350,7 @@ namespace StardustCraft.World
                 var chunksToRender = chunks.Values
                 .OrderBy(chunk => Vector3.DistanceSquared(
                     new Vector3(chunk.X * Chunk.Size + Chunk.Size / 2, 0, chunk.Z * Chunk.Size + Chunk.Size / 2),
-                    playerPosition))
+                    player.FinalPosition))
                 .ToList();
 
                 // Renderizza
@@ -438,6 +446,10 @@ namespace StardustCraft.World
             }
         }
 
+        public PlayerEntity GetClientEntity()
+        {
+            return entities.Find(e => e.uuid == "CLIENT") as PlayerEntity;
+        }
         public void Dispose()
         {
             foreach (var chunk in chunks.Values)

@@ -12,7 +12,9 @@ namespace StardustCraft.UI
         LeftTop,
         LeftBottom,
         RightTop,
-        RightBottom
+        RightBottom,
+        CenterTop,
+        CenterBottom,
     }
 
     public enum UIDisplay

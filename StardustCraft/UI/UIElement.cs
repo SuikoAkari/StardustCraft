@@ -52,15 +52,42 @@ namespace StardustCraft.UI
     }
     public static class LayoutUtil
     {
-        public static Vector2 ResolveAnchor(UIAnchor anchor, Vector2 parentPos, Vector2 parentSize, Vector2 size, float screenHeight)
+        public static Vector2 ResolveAnchor(
+    UIAnchor anchor,
+    Vector2 parentPos,
+    Vector2 parentSize,
+    Vector2 size,
+    float screenHeight)
         {
             return anchor switch
             {
-                UIAnchor.Center => parentPos + parentSize / 2f - size / 2f,
-                UIAnchor.LeftTop => parentPos + new Vector2(0, parentSize.Y - size.Y), // child relative
-                UIAnchor.LeftBottom => parentPos,
-                UIAnchor.RightTop => parentPos + new Vector2(parentSize.X - size.X, parentSize.Y - size.Y),
-                UIAnchor.RightBottom => parentPos + new Vector2(parentSize.X - size.X, 0),
+                UIAnchor.Center =>
+                    parentPos + parentSize / 2f - size / 2f,
+
+                UIAnchor.LeftTop =>
+                    parentPos + new Vector2(0, parentSize.Y - size.Y),
+
+                UIAnchor.LeftBottom =>
+                    parentPos,
+
+                UIAnchor.RightTop =>
+                    parentPos + new Vector2(parentSize.X - size.X, parentSize.Y - size.Y),
+
+                UIAnchor.RightBottom =>
+                    parentPos + new Vector2(parentSize.X - size.X, 0),
+
+                UIAnchor.CenterTop =>
+                    parentPos + new Vector2(
+                        (parentSize.X - size.X) / 2f,
+                        parentSize.Y - size.Y
+                    ),
+
+                UIAnchor.CenterBottom =>
+                    parentPos + new Vector2(
+                        (parentSize.X - size.X) / 2f,
+                        0
+                    ),
+
                 _ => parentPos
             };
         }

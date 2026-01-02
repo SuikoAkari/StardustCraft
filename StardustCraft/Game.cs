@@ -37,7 +37,6 @@ public class Game : GameWindow
     double fpsTime = 0;
     int fpsFrames = 0;
     public int currentFps = 0;
-    public BlockType PlaceBlockType = BlockType.Stone;
     public Game(GameWindowSettings gws, NativeWindowSettings nws)
         : base(gws, nws) { }
     protected override void OnResize(ResizeEventArgs e)
@@ -106,7 +105,7 @@ public class Game : GameWindow
             {
                 world?.Update((float)FIXED_DT);
                 // aggiorna posizione del player nel world
-                world.UpdatePlayerPosition(cameraPos);
+                world.UpdatePlayerPosition();
                 accumulator -= FIXED_DT;
             }
 
@@ -132,6 +131,65 @@ public class Game : GameWindow
 
         pitch = Math.Clamp(pitch, -89f, 89f);
     }
+    public void UpdateClientPlayer(FrameEventArgs args)
+    {
+        var player = world.GetClientEntity();
+        if (player != null)
+        {
+            // gestione input
+            if (Game.Instance.KeyboardState.IsKeyPressed(Keys.Space))
+                world.JumpPressed = true;
+            player.RenderPos = Vector3.Lerp(player.RenderPos, player.FinalPosition, (float)args.Time * 20);
+            cameraPos = new Vector3(player.RenderPos.X, player.RenderPos.Y + 1.7f / 2f, player.RenderPos.Z);
+
+            RayCast(cameraPos);
+            if (KeyboardState.IsKeyPressed(Keys.D1))
+            {
+                player.selectedInventorySlot = 0;
+            }
+            if (KeyboardState.IsKeyPressed(Keys.D2))
+            {
+                player.selectedInventorySlot = 1;
+            }
+            if (KeyboardState.IsKeyPressed(Keys.D3))
+            {
+                player.selectedInventorySlot = 2;
+            }
+            if (KeyboardState.IsKeyPressed(Keys.D4))
+            {
+                player.selectedInventorySlot = 3;
+            }
+            if (KeyboardState.IsKeyPressed(Keys.D5))
+            {
+                player.selectedInventorySlot = 4;
+            }
+            if (KeyboardState.IsKeyPressed(Keys.D6))
+            {
+                player.selectedInventorySlot = 5;
+            }
+            if (KeyboardState.IsKeyPressed(Keys.D7))
+            {
+                player.selectedInventorySlot = 6;
+            }
+            if (KeyboardState.IsKeyPressed(Keys.D8))
+            {
+                player.selectedInventorySlot = 7;
+            }
+            if (KeyboardState.IsKeyPressed(Keys.D9))
+            {
+                player.selectedInventorySlot = 8;
+            }
+            
+            if (Ray.Block != null)
+            {
+                if (MouseState.IsButtonPressed(MouseButton.Left))
+                    world.SetBlockAt(Ray.Position.X, Ray.Position.Y, Ray.Position.Z, BlockType.Air);
+
+                if (MouseState.IsButtonPressed(MouseButton.Right))
+                    world.SetBlockAt(Ray.Position.X + Ray.Normal.X,Ray.Position.Y + Ray.Normal.Y,Ray.Position.Z + Ray.Normal.Z, player.inventory[player.selectedInventorySlot]);
+            }
+        }
+    }
     protected override void OnUpdateFrame(FrameEventArgs args)
     {
         if (!IsFocused)
@@ -139,49 +197,9 @@ public class Game : GameWindow
 
         float dt = (float)args.Time;
 
-        var player = world.entities.OfType<PlayerEntity>().FirstOrDefault();
-        if (player != null)
-        {
-            // gestione input
-            if (Game.Instance.KeyboardState.IsKeyPressed(Keys.Space))
-                world.JumpPressed = true;
-            player.RenderPos = Vector3.Lerp(player.RenderPos, player.FinalPosition, (float)args.Time*20);
-            cameraPos = new Vector3(player.RenderPos.X, player.RenderPos.Y + 1.7f / 2f, player.RenderPos.Z);
-
-            RayCast(cameraPos);
-        }
-        if (KeyboardState.IsKeyPressed(Keys.D1))
-        {
-            PlaceBlockType=BlockType.Stone;
-        }
-        if (KeyboardState.IsKeyPressed(Keys.D2))
-        {
-            PlaceBlockType = BlockType.Grass;
-        }
-        if (KeyboardState.IsKeyPressed(Keys.D3))
-        {
-            PlaceBlockType = BlockType.Dirt;
-        }
-        if (KeyboardState.IsKeyPressed(Keys.D4))
-        {
-            PlaceBlockType = BlockType.OakPlanks;
-        }
-        // gestione interazioni blocchi
-        if (Ray.Block != null)
-        {
-            if (MouseState.IsButtonPressed(MouseButton.Left))
-                world.SetBlockAt(Ray.Position.X, Ray.Position.Y, Ray.Position.Z, BlockType.Air);
-
-            if (MouseState.IsButtonPressed(MouseButton.Right))
-                world.SetBlockAt(Ray.Position.X + Ray.Normal.X,
-                                  Ray.Position.Y + Ray.Normal.Y,
-                                  Ray.Position.Z + Ray.Normal.Z,
-                                  PlaceBlockType);
-        }
-
-
-
-        // aggiorna illuminazione
+        UpdateClientPlayer(args);
+        
+       
         lighting.Update(dt, cameraPos);
     }
 
@@ -303,7 +321,7 @@ public class Game : GameWindow
         shader.SetInt("tex", 0);
         //lighting.ApplyToShader(shader, cameraPos);
 
-        world.Render(shader, cameraPos);
+        world.Render(shader);
         if (cubeRenderer != null)
         {
             if (Ray.Block!=null)

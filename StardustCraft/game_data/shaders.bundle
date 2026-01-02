@@ -127,4 +127,35 @@ void main()
 	v_color = a_color;
 	v_texCoords = a_texCoords0;
 	gl_Position = MatrixTransform * vec4(a_position, 1.0);
+}#version 330 core
+in vec2 vUV;
+flat in int vTex;
+
+uniform sampler2D uTextures[6];
+uniform float alpha;
+
+out vec4 FragColor;
+
+void main()
+{
+    vec4 c = texture(uTextures[vTex], vUV);
+    FragColor = vec4(c.rgb, c.a * alpha);
+}﻿#version 330 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aUV;
+layout (location = 2) in float aTex;   // FLOAT, NON int
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+out vec2 vUV;
+flat out int vTex;
+
+void main()
+{
+    vUV = aUV;
+    vTex = int(aTex);   // cast ESPLICITO
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
 }

@@ -4,7 +4,7 @@
       "anchor": "Center",
       "pos": {
         "X": 0,
-        "Y": 0,
+        "Y": 0
       },
       "size": {
         "X": 12,
@@ -23,55 +23,34 @@
     {
       "anchor": "LeftTop",
       "pos": {
-        "X": 12,
-        "Y": 12
+        "X": 0,
+        "Y": 26
       },
       "size": {
-        "X": 200,
-        "Y": 100
+        "X": 0,
+        "Y": 26
       },
-      "type": "Container",
-      "texture": "ui/small_panel_test.png",
-      "margin": [ 0, 0, 0, 0 ],
-      "padding": [ 12, 4, 4, 4 ],
-      "display": "flex:column",
-      "content": [
-        {
-          "anchor": "LeftTop",
-          "pos": {
-            "X": 0,
-            "Y": 0
-          },
-          "size": {
-            "X": 0,
-            "Y": 26
-          },
-          "fontSize": 24,
-          "type": "Text",
-          "text": "Hello world",
-          "name": "text_test",
-          "luaFile": "data/ui/lua_test.lua"
-        },
-        {
-          "anchor": "LeftTop",
-          "pos": {
-            "X": 0,
-            "Y": 0
-          },
-          "size": {
-            "X": 0,
-            "Y": 20
-          },
-          "fontSize": 20,
-          "type": "Text",
-          "text": "StardustCraft",
-          "name": "text_test",
-          "luaFile": ""
-        }
-      ],
-      "name": "PanelTest",
+      "fontSize": 24,
+      "type": "Text",
+      "text": "Hello world",
+      "name": "text_test",
+      "luaFile": "data/ui/lua_test.lua"
+    },
+    {
+      "anchor": "LeftTop",
+      "pos": {
+        "X": 0,
+        "Y": 40
+      },
+      "size": {
+        "X": 0,
+        "Y": 20
+      },
+      "fontSize": 20,
+      "type": "Text",
+      "text": "StardustCraft",
+      "name": "text_test",
       "luaFile": ""
-
     }
   ],
   
