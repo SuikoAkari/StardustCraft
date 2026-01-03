@@ -14,7 +14,7 @@ namespace StardustCraft.UI.Basic
             float slotWidth = 75f;
             float spacing = 4f;
             float totalWidth = n * slotWidth + (n - 1) * spacing;
-
+            name = "GameHUDv2";
             for (int i = 0; i < n; i++)
             {
                 content.Add(new UIHudSlot()

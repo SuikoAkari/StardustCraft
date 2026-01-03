@@ -31,18 +31,24 @@ namespace StardustCraft.UI.Basic
         }
         public override void Update(float dt)
         {
+            if (Game.world == null)
+            {
+                tex = TextureLoader.GetTexture(unselectedSlotTexture);
+                return;
+            }
             PlayerEntity owner = Game.world.GetClientEntity();
             if (owner!=null)
             {
                 tex = TextureLoader.GetTexture(owner.selectedInventorySlot == slot ? selectedSlotTexture : unselectedSlotTexture);
             }
             
+            
         }
         public override void Render()
         {
             if (tex != null)
                 UserInterface.RenderQuad(computedPos, size, Vector4.One, tex);
-            
+            if (Game.world == null) return;
             PlayerEntity owner = Game.world.GetClientEntity();
             if (owner != null)
             {

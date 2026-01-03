@@ -12,7 +12,7 @@ namespace StardustCraft.UI
         public string name;
         public string luaFile;
         public List<UIElement> content=new();
-
+        public bool enabled;
         public void Init()
         {
             foreach (var e in content)
@@ -27,12 +27,14 @@ namespace StardustCraft.UI
 
         public void Render()
         {
+            if (!enabled) return;
             foreach (var e in content)
                 e.Render();
         }
 
         public void Update(float dt)
         {
+            if (!enabled) return;
             foreach (var e in content)
                 e.Update(dt);
         }

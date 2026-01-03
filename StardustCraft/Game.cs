@@ -12,31 +12,24 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Diagnostics;
 using System.Reflection;
+using StardustCraft.Auth;
 
 public class Game : GameWindow
 {
     public static World world;
     public static UserInterface UI;
     public static Game Instance;
+    public AccountState AccountState;
     public CubeRenderer cubeRenderer;
     public static string ClientVersion = "1.1";
-    Shader shader;
-    private Lighting lighting;
+    public Camera Camera;
     Matrix4 projection;
     Matrix4 view;
-    public Vector3 cameraPos = new Vector3(8, 10, 8);
-    public float yaw = -90f;
-    public float pitch = 0f;
-    public Ray Ray;
-    float speed = 10f;
-    float sensitivity = 0.2f;
-
-    bool firstMove = true;
-    Vector2 lastMousePos;
-
+    Shader shader;
     double fpsTime = 0;
     int fpsFrames = 0;
     public int currentFps = 0;
+    public bool GamePause = true;
     public Game(GameWindowSettings gws, NativeWindowSettings nws)
         : base(gws, nws) { }
     protected override void OnResize(ResizeEventArgs e)
@@ -62,7 +55,7 @@ public class Game : GameWindow
     {
         Instance = this;
         BundleManager.Instance.Initialize("game_data");
-        CursorState = CursorState.Grabbed;
+        
         GL.ClearColor(0.1f, 0.1f, 0.1f, 1f);
         GL.Enable(EnableCap.DepthTest);
         GL.DepthFunc(DepthFunction.Lequal);
@@ -70,12 +63,14 @@ public class Game : GameWindow
         shader = new Shader("shader.vert", "shader.frag");
 
         CreatePerspectiveField();
-        lighting = new Lighting();
         BlockManager.Initialize();
-        world = new World();
-        world.Start();
+        Camera= new Camera();
+        //world = new World();
+        // world.Start();
         cubeRenderer = new();
         cubeRenderer.Initialize();
+        AccountState = new();
+        AccountState.Initialize();
         UI = new();
         UI.Initialize(this);
         new Thread(() =>
@@ -103,9 +98,12 @@ public class Game : GameWindow
 
             while (accumulator >= FIXED_DT)
             {
-                world?.Update((float)FIXED_DT);
-                // aggiorna posizione del player nel world
-                world.UpdatePlayerPosition();
+                if (world != null)
+                {
+                    world?.Update((float)FIXED_DT);
+                    world.UpdatePlayerPosition();
+                }
+
                 accumulator -= FIXED_DT;
             }
 
@@ -115,24 +113,11 @@ public class Game : GameWindow
 
     protected override void OnMouseMove(MouseMoveEventArgs e)
     {
-        if (firstMove)
-        {
-            lastMousePos = e.Position;
-            firstMove = false;
-            return;
-        }
-
-        var deltaX = e.Position.X - lastMousePos.X;
-        var deltaY = e.Position.Y - lastMousePos.Y;
-        lastMousePos = e.Position;
-
-        yaw += deltaX * sensitivity;
-        pitch -= deltaY * sensitivity;
-
-        pitch = Math.Clamp(pitch, -89f, 89f);
+        this.Camera.OnMouseMove(e);
     }
     public void UpdateClientPlayer(FrameEventArgs args)
     {
+        if (world == null) return;
         var player = world.GetClientEntity();
         if (player != null)
         {
@@ -140,9 +125,8 @@ public class Game : GameWindow
             if (Game.Instance.KeyboardState.IsKeyPressed(Keys.Space))
                 world.JumpPressed = true;
             player.RenderPos = Vector3.Lerp(player.RenderPos, player.FinalPosition, (float)args.Time * 20);
-            cameraPos = new Vector3(player.RenderPos.X, player.RenderPos.Y + 1.7f / 2f, player.RenderPos.Z);
-
-            RayCast(cameraPos);
+            Camera.Position = new Vector3(player.RenderPos.X, player.RenderPos.Y + 1.7f / 2f, player.RenderPos.Z);
+            Camera.RayCast();
             if (KeyboardState.IsKeyPressed(Keys.D1))
             {
                 player.selectedInventorySlot = 0;
@@ -180,13 +164,13 @@ public class Game : GameWindow
                 player.selectedInventorySlot = 8;
             }
             
-            if (Ray.Block != null)
+            if (Camera.Ray.Block != null)
             {
                 if (MouseState.IsButtonPressed(MouseButton.Left))
-                    world.SetBlockAt(Ray.Position.X, Ray.Position.Y, Ray.Position.Z, BlockType.Air);
+                    world.SetBlockAt(Camera.Ray.Position.X, Camera.Ray.Position.Y, Camera.Ray.Position.Z, BlockType.Air);
 
                 if (MouseState.IsButtonPressed(MouseButton.Right))
-                    world.SetBlockAt(Ray.Position.X + Ray.Normal.X,Ray.Position.Y + Ray.Normal.Y,Ray.Position.Z + Ray.Normal.Z, player.inventory[player.selectedInventorySlot]);
+                    world.SetBlockAt(Camera.Ray.Position.X + Camera.Ray.Normal.X, Camera.Ray.Position.Y + Camera.Ray.Normal.Y, Camera.Ray.Position.Z + Camera.Ray.Normal.Z, player.inventory[player.selectedInventorySlot]);
             }
         }
     }
@@ -196,100 +180,30 @@ public class Game : GameWindow
             return;
 
         float dt = (float)args.Time;
-
         UpdateClientPlayer(args);
-        
-       
-        lighting.Update(dt, cameraPos);
-    }
-
-    public void RayCast(Vector3 position)
-    {
-        float maxDistance = 12f;
-        Vector3 dir = new(
-                MathF.Cos(MathHelper.DegreesToRadians(yaw)) * MathF.Cos(MathHelper.DegreesToRadians(pitch)),
-                MathF.Sin(MathHelper.DegreesToRadians(pitch)),
-                MathF.Sin(MathHelper.DegreesToRadians(yaw)) * MathF.Cos(MathHelper.DegreesToRadians(pitch))
-            );
-        dir = Vector3.Normalize(dir);
-
-        int x = (int)MathF.Floor(position.X);
-        int y = (int)MathF.Floor(position.Y);
-        int z = (int)MathF.Floor(position.Z);
-
-        int stepX = dir.X >= 0 ? 1 : -1;
-        int stepY = dir.Y >= 0 ? 1 : -1;
-        int stepZ = dir.Z >= 0 ? 1 : -1;
-
-        float tDeltaX = MathF.Abs(1f / dir.X);
-        float tDeltaY = MathF.Abs(1f / dir.Y);
-        float tDeltaZ = MathF.Abs(1f / dir.Z);
-
-        // Gestione precisa dei confini iniziali
-        float tMaxX = (dir.X > 0) ? (MathF.Floor(position.X) + 1 - position.X) * tDeltaX
-                                 : (position.X - MathF.Floor(position.X)) * tDeltaX;
-        float tMaxY = (dir.Y > 0) ? (MathF.Floor(position.Y) + 1 - position.Y) * tDeltaY
-                                 : (position.Y - MathF.Floor(position.Y)) * tDeltaY;
-        float tMaxZ = (dir.Z > 0) ? (MathF.Floor(position.Z) + 1 - position.Z) * tDeltaZ
-                                 : (position.Z - MathF.Floor(position.Z)) * tDeltaZ;
-
-        // Se la posizione è esattamente sul bordo, tMaxX sarà 0. 
-        // Per evitare loop infiniti o salti, forziamo i valori infiniti se dir è 0.
-        if (dir.X == 0) tMaxX = float.PositiveInfinity;
-        if (dir.Y == 0) tMaxY = float.PositiveInfinity;
-        if (dir.Z == 0) tMaxZ = float.PositiveInfinity;
-
-        Vector3i lastNormal = Vector3i.Zero;
-        float t = 0;
-
-        while (t <= maxDistance)
+        if (!GamePause && world!=null)
         {
-            var block = world.GetBlockAt(x, y, z);
-            if (block.Type != BlockType.Air)
-            {
-                Vector3 hitPos = position + dir * t;
-                // La normale è semplicemente l'opposto dello step sull'ultimo asse che si è mosso
-                Ray = new Ray(block, (x, y, z), lastNormal, hitPos);
-                return;
-            }
-
-            if (tMaxX < tMaxY)
-            {
-                if (tMaxX < tMaxZ)
-                {
-                    t = tMaxX;
-                    tMaxX += tDeltaX;
-                    x += stepX;
-                    lastNormal = new Vector3i(-stepX, 0, 0);
-                }
-                else
-                {
-                    t = tMaxZ;
-                    tMaxZ += tDeltaZ;
-                    z += stepZ;
-                    lastNormal = new Vector3i(0, 0, -stepZ);
-                }
-            }
-            else
-            {
-                if (tMaxY < tMaxZ)
-                {
-                    t = tMaxY;
-                    tMaxY += tDeltaY;
-                    y += stepY;
-                    lastNormal = new Vector3i(0, -stepY, 0);
-                }
-                else
-                {
-                    t = tMaxZ;
-                    tMaxZ += tDeltaZ;
-                    z += stepZ;
-                    lastNormal = new Vector3i(0, 0, -stepZ);
-                }
-            }
+            Camera.IsCursorLocked = true;
         }
-        Ray = new Ray();
+        else
+        {
+            Camera.IsCursorLocked = false;
+        }
+        if (world != null)
+        {
+            UI.GetLayoutByName("GameHUDv2").enabled = true;
+            UI.GetLayoutByName("GameHUDv1").enabled = true;
+            UI.GetLayoutByName("MainMenu").enabled = false;
+        }
+        else
+        {
+            UI.GetLayoutByName("GameHUDv2").enabled = false;
+            UI.GetLayoutByName("GameHUDv1").enabled = false;
+            UI.GetLayoutByName("MainMenu").enabled = true;
+        }
     }
+
+   
     int textureAtlas = 0;
     protected override void OnRenderFrame(FrameEventArgs args)
     {
@@ -300,18 +214,9 @@ public class Game : GameWindow
         GL.Enable(EnableCap.Blend);
         GL.Enable(EnableCap.DepthTest);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-        Vector3 front;
-        front.X = MathF.Cos(MathHelper.DegreesToRadians(yaw)) * MathF.Cos(MathHelper.DegreesToRadians(pitch));
-        front.Y = MathF.Sin(MathHelper.DegreesToRadians(pitch));
-        front.Z = MathF.Sin(MathHelper.DegreesToRadians(yaw)) * MathF.Cos(MathHelper.DegreesToRadians(pitch));
-        front = Vector3.Normalize(front);
-
-        view = Matrix4.LookAt(
-            cameraPos,
-            cameraPos + front,
-            Vector3.UnitY
-        );
-        if(textureAtlas==0)
+       
+        view = Camera.GetView();
+        if (textureAtlas==0)
             textureAtlas=TextureLoader.GetTexture("atlas.png");
         shader.Use();
         shader.SetMatrix4("projection", projection);
@@ -319,14 +224,14 @@ public class Game : GameWindow
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, textureAtlas);
         shader.SetInt("tex", 0);
-        //lighting.ApplyToShader(shader, cameraPos);
-
+        //lighting.ApplyToShader(shader, Camera.Position);
+        if (world!=null)
         world.Render(shader);
         if (cubeRenderer != null)
         {
-            if (Ray.Block!=null)
+            if (Camera.Ray.Block!=null)
             {
-                cubeRenderer.Render(Ray.Position.ToVector3(), view, projection);
+                cubeRenderer.Render(Camera.Ray.Position.ToVector3(), view, projection);
             }
         }
         GL.Disable(EnableCap.DepthTest);

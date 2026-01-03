@@ -235,7 +235,7 @@ namespace StardustCraft.World
                 if (Game.Instance.IsKeyDown(Keys.A)) input.X -= 1;
                 if (Game.Instance.IsKeyDown(Keys.D)) input.X += 1;
 
-                player.Move(input, Game.Instance.yaw, 20*deltaTime);
+                player.Move(input, Game.Instance.Camera.yaw, 20*deltaTime);
 
                 if (JumpPressed)
                 {

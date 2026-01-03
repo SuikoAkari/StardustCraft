@@ -20,7 +20,7 @@ namespace StardustCraft.UI
         public static FontSystem _fontSystem;
         public List<UILayout> layouts = new();
 
-        public void LoadAndAddLayout(string path)
+        public UILayout LoadAndAddLayout(string path)
         {
             var settings = new JsonSerializerSettings();
             settings.Converters.Add(new UIElementConverter());
@@ -31,13 +31,30 @@ namespace StardustCraft.UI
             );
             v.Compute(Size);
             v.Init();
-            
             layouts.Add(v);
+            return v;
+
+        }
+       
+        public void AddUIS()
+        {
+            LoadAndAddLayout("data/ui/ui_game_hud.json");
             UILayout v2 = new UIMainHud();
             v2.Compute(Size);
             v2.Init();
             layouts.Add(v2);
-
+            
+            // UILayout test=LoadAndAddLayout("data/ui/ui_game_hud.json");
+            // test.name = "test";
+            //  test.enabled = true;
+            UILayout mm = new UIMainMenu();
+            mm.Compute(Size);
+            mm.Init();
+            layouts.Add(mm);
+        }
+        public UILayout? GetLayoutByName(string name)
+        {
+            return layouts.Find(l => l.name == name);
         }
         public void UpdateSize(Vector2i size)
         {
@@ -95,7 +112,7 @@ namespace StardustCraft.UI
             GL.BindVertexArray(0);
 
             shaderProgram = CreateShader();
-            LoadAndAddLayout("data/ui/ui_game_hud.json");
+            AddUIS();
         }
 
         public static System.Numerics.Vector2 MeasureString(int fontSize, string text)
@@ -122,7 +139,7 @@ namespace StardustCraft.UI
         }
         public void Render(float deltaTime)
         {
-            // RenderQuad(new Vector2(Size.X/2 - 6, Size.Y / 2 - 6), new Vector2(12, 12), Vector4.One, TextureLoader.GetTexture("ui/small_center_cursor.png"));
+             
             //RenderQuad(new Vector2(10, 10), new Vector2(100, 100), Vector4.One, TextureLoader.GetTexture("ui/small_panel_test.png"));
             //var font = _fontSystem.GetFont(24);
             // textRenderer.Begin(new Vector2i((int)Size.X, (int)Size.Y));
@@ -130,9 +147,11 @@ namespace StardustCraft.UI
             //  textRenderer.End();
             foreach (var l in layouts)
             {
-                l.Render();
                 l.Update(deltaTime);
+                l.Render();
+                
             }
+            //RenderQuad(new Vector2(Size.X/2 - 6, Size.Y / 2 - 6), new Vector2(12, 12), Vector4.One, TextureLoader.GetTexture("ui/small_center_cursor.png"));
         }
 
         public static void RenderQuad(Vector2 position, Vector2 size, Vector4 color, int texture = 0)
