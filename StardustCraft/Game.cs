@@ -22,7 +22,7 @@ public class Game : GameWindow
     public static Game Instance;
     public AccountState AccountState;
     public CubeRenderer cubeRenderer;
-    public static string ClientVersion = "1.1";
+    public static string ClientVersion = "1.2a";
     public Camera Camera;
     Matrix4 projection;
     Matrix4 view;
