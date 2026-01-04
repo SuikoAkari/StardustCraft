@@ -6,11 +6,19 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardustCraft", "StardustCraft\StardustCraft.csproj", "{C640DD08-DAAA-4240-A54A-6E06B3C18FB1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{345D8C5B-1E92-4C70-BFB4-B32A78B3F421} = {345D8C5B-1E92-4C70-BFB4-B32A78B3F421}
+		{FE921BBF-0A75-4A50-AF79-E895994D9E57} = {FE921BBF-0A75-4A50-AF79-E895994D9E57}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardustCraft.Bundles", "StardustCraft.Bundles\StardustCraft.Bundles.csproj", "{345D8C5B-1E92-4C70-BFB4-B32A78B3F421}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardustCraft.Packer", "StardustCraft.Packer\StardustCraft.Packer.csproj", "{2DF49CFB-BADD-4725-AA85-F3923AA90B7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardustCraft.Protocol", "StardustCraft.Protocol\StardustCraft.Protocol.csproj", "{FE921BBF-0A75-4A50-AF79-E895994D9E57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardustCraft.Server", "StardustCraft.Server\StardustCraft.Server.csproj", "{DDE989C1-4956-4DA5-AE00-54BFE2BAAD63}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FE921BBF-0A75-4A50-AF79-E895994D9E57} = {FE921BBF-0A75-4A50-AF79-E895994D9E57}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +38,14 @@ Global
 		{2DF49CFB-BADD-4725-AA85-F3923AA90B7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DF49CFB-BADD-4725-AA85-F3923AA90B7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DF49CFB-BADD-4725-AA85-F3923AA90B7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE921BBF-0A75-4A50-AF79-E895994D9E57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE921BBF-0A75-4A50-AF79-E895994D9E57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE921BBF-0A75-4A50-AF79-E895994D9E57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE921BBF-0A75-4A50-AF79-E895994D9E57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDE989C1-4956-4DA5-AE00-54BFE2BAAD63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDE989C1-4956-4DA5-AE00-54BFE2BAAD63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDE989C1-4956-4DA5-AE00-54BFE2BAAD63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDE989C1-4956-4DA5-AE00-54BFE2BAAD63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

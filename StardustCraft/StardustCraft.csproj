@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StardustCraft.Bundles\StardustCraft.Bundles.csproj" />
+    <ProjectReference Include="..\StardustCraft.Protocol\StardustCraft.Protocol.csproj" />
   </ItemGroup>
 
 </Project>

@@ -17,12 +17,14 @@ namespace StardustCraft.World
         public List<Entity> entities = new List<Entity>();
         public float time;
         public bool JumpPressed;
+        private bool network;
         public World()
         {
            
         }
-        public void Start()
+        public void Start(bool network=false)
         {
+            this.network=network;
             GenerateInitialChunks(0, 0);
             AddEntity(new PlayerEntity(new Vector3(0, 200, 0)));
         }
@@ -309,7 +311,15 @@ namespace StardustCraft.World
             if (chunk == null)
             {
                 chunk = new Chunk(x, z);
-                chunk.GenerateTerrain();
+                if (network)
+                {
+                    _=Game.Instance.NetManager.SendAsync(MsgId.CsAskChunkData, new CsAskChunkData() { X = x, Z = z });
+                }
+                else
+                {
+                    chunk.GenerateTerrain();
+                }
+                
 
                 // Opzionale: salva su disco
                 // SaveChunkToDisk(chunk);

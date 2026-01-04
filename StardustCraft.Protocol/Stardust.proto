@@ -1,0 +1,32 @@
+﻿syntax = "proto3";
+
+enum MsgId
+{
+    MsgId_PingReq = 0;
+    MsgId_PingRsp = 1;
+    MsgId_CsPlayerLogin = 4;
+    MsgId_ScPlayerLogin = 5;
+    MsgId_CsAskChunkData = 6;
+    MsgId_ScAskChunkData = 7;
+}
+
+message CsPlayerLogin {
+    string token = 1;
+    string client_version = 2;
+}
+
+message ScPlayerLogin {
+    string username = 1;
+    int64 uid = 2;
+}
+
+message CsAskChunkData {
+    int32 x = 1;
+    int32 z = 2;
+}
+
+message ScAskChunkData {
+    int32 x = 1;
+    int32 z = 2;
+    bytes blocks = 3;
+}

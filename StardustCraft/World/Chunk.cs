@@ -981,6 +981,30 @@ namespace StardustCraft.World
             );
             return Vector3.DistanceSquared(chunkCenter, position);
         }
+
+        public void SetData(ScAskChunkData rsp)
+        {
+            
+
+            var data = rsp.Blocks;
+
+            int i = 0;
+            for (int y = 0; y < SizeY; y++)
+                for (int z = 0; z < Size; z++)
+                    for (int x = 0; x < Size; x++)
+                    {
+                        Blocks[x, y, z] = (BlockType)data[i++];
+                    }
+
+            RecalculateLight();
+            renderer.PreBuildMesh(this);
+            collisionDirty = true;
+
+            
+            rebuildChunk = true;
+
+
+        }
     }
 
     public struct Vector2i

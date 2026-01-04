@@ -13,6 +13,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Diagnostics;
 using System.Reflection;
 using StardustCraft.Auth;
+using StardustCraft.Network;
 
 public class Game : GameWindow
 {
@@ -30,6 +31,7 @@ public class Game : GameWindow
     int fpsFrames = 0;
     public int currentFps = 0;
     public bool GamePause = true;
+    public NetManager NetManager; //Null if singleplayer
     public Game(GameWindowSettings gws, NativeWindowSettings nws)
         : base(gws, nws) { }
     protected override void OnResize(ResizeEventArgs e)

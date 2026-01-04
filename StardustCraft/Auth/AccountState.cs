@@ -14,14 +14,18 @@ namespace StardustCraft.Auth
         
         public AccountState() { }
 
-        public void Initialize()
+        public void Initialize(string tkn=null)
         {
             if (File.Exists("token.txt"))
             {
                 Token = File.ReadAllText("token.txt");
                 GetData();
             }
-            
+            if (tkn != null)
+            {
+                Token = tkn;
+                GetData();
+            }
         }
 
         public async void GetData()
