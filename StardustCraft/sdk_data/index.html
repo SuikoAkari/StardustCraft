@@ -1,0 +1,194 @@
+<!doctype html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/favicon.png" />
+		<link rel="manifest" href="/manifest.json">
+		<style>
+			
+			html{
+				height: 100%;
+			}
+			body {
+				height: 100%;
+				background-color: transparent;
+				color: #222;
+				font-family: Arial, Helvetica, sans-serif;
+				padding: 0;
+				margin: 0;
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			:root {
+				--scale: 0;
+				--visible: -1;
+			}
+
+			.wrapper {
+				transform: scale(var(--scale));
+				
+				height: 759px;
+    			width: 1464px;
+			}
+
+			.news-panel {
+				background-color: transparent;
+				border-radius: 0px;
+				height: 759px;
+    			width: 1464px;
+				display: flex;
+				overflow: hidden;
+				flex-direction: column;
+				box-shadow: 0 12px 12px 0 rgba(9, 2, 4, 0.192), 0 0 12px 0 rgba(9, 2, 4, .5);
+				transition: opacity 0.6s linear;
+				opacity: var(--visible);
+				background-image: url("/main_bg.png");
+				background-size: cover;
+				color: #fff;
+			}
+			.news-panel-top-banner{
+				
+				border-radius: 6px 20px 6px 20px;
+				display: flex;
+				align-items: center;
+    			justify-content: center;
+				height:90px;
+				width:-webkit-fill-available;
+				gap:10px;
+				
+			}
+			.bulletin-tab-btn{
+				width:250px;
+				height:60px;
+				
+				border-radius: 0px;
+				background-color: transparent;
+				font-size:28px;
+				font-weight: bold;
+				cursor: pointer;
+				border:0px;
+				color:#fff;
+				background-image: url("/tab_btn_unselected.png");
+				background-size:contain;
+				
+			}
+			.bulletin-tab-btn.selected{
+				background-image: url("/tab_btn_selected.png");
+			}
+			.bulletin-notice-btn{
+				width:300px;
+				height:70px;
+				
+				border-radius: 0px;
+				font-size:26px;
+				padding:8px;
+				font-weight: bold;
+				cursor: pointer;
+				background-color: transparent;
+				background-image: url("/tab_btn_unselected.png");
+				background-size: contain;
+				background-repeat: no-repeat;
+				background-position: center;
+				border:0px;
+				transition: all 0.2s linear;
+			}
+			.bulletin-notice-btn.selected{
+				background-image: url("/tab_btn_selected.png");
+				transform:translateX(10px);
+			}
+			
+			h2{
+				margin:0px;
+			}
+			.bulletin-notice-list{
+				width: 430px;
+				height: -webkit-fill-available;
+				overflow: hidden;
+				overflow-y: auto;
+				padding-left: 10px;
+				padding-top: 10px;
+				
+				display: flex;
+				flex-direction: column;
+			}
+			.bulletin-notice-content{
+				
+				border:2px solid #ffffff1a;
+				margin:8px;
+				height: calc(759px - 90px - 8px * 2 - 4px * 2 - 4px);
+				box-sizing: border-box;
+				background-color: #ffffff1a;
+				width: -webkit-fill-available;
+				overflow: hidden;
+				overflow-y: auto;
+				font-size:26px;
+				padding:16px;
+			}
+			.bulletin-notice-content::-webkit-scrollbar{
+				background-color: transparent;
+				width:12px;
+				
+			}
+			.bulletin-notice-content::-webkit-scrollbar-thumb{
+				background-color: #203658;
+				border-radius:12px;
+				border:3px solid #374a69;
+			}
+			.close-btn{
+				width:35px;
+				top:20px;
+				position:absolute;
+				right:20px;
+				cursor: pointer;
+			}
+			/*.wrapper {
+					transform: scale(calc(100vw / 1464px));
+				}
+			
+
+			@media screen and (min-aspect-ratio: 16/9) {
+				.wrapper {
+					transform: scale(calc(100vw / 1464px));
+				}
+			}*/
+
+		</style>
+		
+		<link rel="modulepreload" href="/_app/immutable/entry/start.BM0z5jij.js">
+		<link rel="modulepreload" href="/_app/immutable/chunks/entry.DMucUDeu.js">
+		<link rel="modulepreload" href="/_app/immutable/chunks/scheduler.CUEOSf3L.js">
+		<link rel="modulepreload" href="/_app/immutable/entry/app.Cx2DBhZf.js">
+		<link rel="modulepreload" href="/_app/immutable/chunks/index.DgMvp_-M.js">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+	</head>
+
+	<body data-sveltekit-preload-data="hover">
+		
+			
+			
+			
+			<script>
+				{
+					__sveltekit_qi9j19 = {
+						base: ""
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/_app/immutable/entry/start.BM0z5jij.js"),
+						import("/_app/immutable/entry/app.Cx2DBhZf.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		
+			
+		
+	</body>
+</html>

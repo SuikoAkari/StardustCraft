@@ -2,13 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Platforms>AnyCPU;x64</Platforms>
+    <StartupObject>Program</StartupObject>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CefSharp.OffScreen.NETCore" Version="143.0.90" />
     <PackageReference Include="FontStashSharp.PlatformAgnostic" Version="1.5.2" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
@@ -20,6 +24,9 @@
     <None Update="game_data\fonts.bundle">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="sdk_data\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Update="StreamingAssets\assets_textures.bundle">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

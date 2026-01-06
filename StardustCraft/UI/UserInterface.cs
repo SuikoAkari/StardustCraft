@@ -147,7 +147,8 @@ namespace StardustCraft.UI
             //  textRenderer.End();
             foreach (var l in layouts)
             {
-                l.Update(deltaTime);
+                if(Game.Instance.browser==null)
+                    l.Update(deltaTime);
                 l.Render();
                 
             }

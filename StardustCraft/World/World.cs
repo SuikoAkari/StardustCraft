@@ -5,6 +5,7 @@ using StardustCraft.Physics;
 using System.Runtime.CompilerServices;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using StardustCraft.World.Blocks;
+using Keys = OpenTK.Windowing.GraphicsLibraryFramework.Keys;
 
 
 namespace StardustCraft.World

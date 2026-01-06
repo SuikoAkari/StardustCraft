@@ -14,6 +14,11 @@ using System.Diagnostics;
 using System.Reflection;
 using StardustCraft.Auth;
 using StardustCraft.Network;
+using CefSharp.OffScreen;
+using Keys = OpenTK.Windowing.GraphicsLibraryFramework.Keys;
+using CefSharp;
+using StardustCraft.Browser;
+using CefSharp.SchemeHandler;
 
 public class Game : GameWindow
 {
@@ -32,13 +37,13 @@ public class Game : GameWindow
     public int currentFps = 0;
     public bool GamePause = true;
     public NetManager NetManager; //Null if singleplayer
+    public GameBrowser browser;
     public Game(GameWindowSettings gws, NativeWindowSettings nws)
         : base(gws, nws) { }
     protected override void OnResize(ResizeEventArgs e)
     {
         base.OnResize(e);
 
-        // Aggiorna il viewport OpenGL
         GL.Viewport(0, 0, e.Width, e.Height);
 
         CreatePerspectiveField();
@@ -55,6 +60,17 @@ public class Game : GameWindow
     }
     protected override void OnLoad()
     {
+        var settings = new CefSettings
+        {
+            WindowlessRenderingEnabled = true, // MUST per OffScreen
+            MultiThreadedMessageLoop = true,
+            BackgroundColor = 0x00000000 // ARGB = trasparente
+        };
+
+        settings.CefCommandLineArgs.Add("disable-web-security", "1");
+        settings.CefCommandLineArgs.Add("allow-file-access-from-files", "1");
+        
+        Cef.Initialize(settings);
         Instance = this;
         BundleManager.Instance.Initialize("game_data");
         
@@ -79,7 +95,9 @@ public class Game : GameWindow
         {
             UpdateSecondThread();
         }).Start();
+        //browser = new GameBrowser(Size.X, Size.Y, "http://localhost:4000/");
     }
+    
     public void UpdateSecondThread()
     {
         const double FIXED_DT = 1.0 / 20.0; 
@@ -176,13 +194,80 @@ public class Game : GameWindow
             }
         }
     }
+    protected override void OnKeyDown(OpenTK.Windowing.Common.KeyboardKeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (browser != null)
+        {
+            browser?.HandleKeyPress(e.Key, true);
+            switch (e.Key)
+            {
+                case OpenTK.Windowing.GraphicsLibraryFramework.Keys.Period:
+                    browser.HandleChar('.');
+                    break;
+                case OpenTK.Windowing.GraphicsLibraryFramework.Keys.Comma:
+                    browser.HandleChar(',');
+                    break;
+                    // Aggiungi altri simboli se necessario
+            }
+        }
+        
+    }
+
+    protected override void OnKeyUp(OpenTK.Windowing.Common.KeyboardKeyEventArgs e)
+    {
+        base.OnKeyUp(e);
+        if (browser != null)
+        {
+            browser?.HandleKeyPress(e.Key, false);
+        }
+    }
+
+    protected override void OnTextInput(OpenTK.Windowing.Common.TextInputEventArgs e)
+    {
+        base.OnTextInput(e);
+        if (browser != null)
+        {
+            foreach (var c in e.AsString)
+                browser?.HandleChar(c);
+        }
+
+    }
     protected override void OnUpdateFrame(FrameEventArgs args)
     {
+
         if (!IsFocused)
             return;
 
         float dt = (float)args.Time;
-        UpdateClientPlayer(args);
+        
+        // --- GESTIONE INPUT BROWSER ---
+        if (browser != null)
+        {
+            var mouse = MouseState; // OpenTK Window MouseState
+            var mousePos = mouse.Position; // Vector2
+
+            // Mouse move
+            browser.HandleMouseMove((int)mousePos.X, (int)mousePos.Y);
+
+            // Mouse click
+            if (mouse.IsButtonDown(MouseButton.Left))
+                browser.HandleMouseClick((int)mousePos.X, (int)mousePos.Y, MouseButton.Left, false);
+
+            if (mouse.IsButtonReleased(MouseButton.Left))
+                browser.HandleMouseClick((int)mousePos.X, (int)mousePos.Y, MouseButton.Left, true);
+
+            if (mouse.IsButtonDown(MouseButton.Right))
+                browser.HandleMouseClick((int)mousePos.X, (int)mousePos.Y, MouseButton.Right, false);
+
+            if (mouse.IsButtonReleased(MouseButton.Right))
+                browser.HandleMouseClick((int)mousePos.X, (int)mousePos.Y, MouseButton.Right, true);
+                browser.HandleMouseWheel((int)mouse.ScrollDelta.X * 100, (int)mouse.ScrollDelta.Y*100, (int)mousePos.X, (int)mousePos.Y);
+        }
+        else
+        {
+            UpdateClientPlayer(args);
+        }
         if (!GamePause && world!=null)
         {
             Camera.IsCursorLocked = true;
@@ -242,6 +327,10 @@ public class Game : GameWindow
         GL.Clear(ClearBufferMask.DepthBufferBit);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         UI.Render((float)args.Time);
+        if (browser != null)
+        {
+            browser.Render(Size.X,Size.Y-40);
+        }
         GL.Disable(EnableCap.Blend);
         SwapBuffers();
        
